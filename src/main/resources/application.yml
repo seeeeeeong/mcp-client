@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: mcp-client
+  ai:
+    mcp:
+      server:
+        protocol: STATELESS
+        type: ASYNC
+
+server:
+  port: 8090
+
+blog:
+  api:
+    base-url: http://localhost:8080
+
+swagger:
+  mcp:
+    service-name: blog-api
+    api-docs-path: /v3/api-docs
+
+logging:
+  level:
+    org.springframework.ai.mcp: INFO
