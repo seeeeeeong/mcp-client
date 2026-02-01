@@ -11,6 +11,8 @@ server:
   port: 8090
 
 mcp:
+  cache:
+    ttl-seconds: 60
   services:
     - name: blog-api
       base-url: http://localhost:8080
@@ -19,3 +21,9 @@ mcp:
 logging:
   level:
     org.springframework.ai.mcp: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

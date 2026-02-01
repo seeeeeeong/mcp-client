@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class SwaggerMcpTools(
-    private val client: SwaggerMcpClient,
+    private val openApiCache: OpenApiCache,
     objectMapper: ObjectMapper,
     registry: McpServiceRegistry
 ) : McpToolSupport(objectMapper, registry) {
@@ -26,11 +26,10 @@ class SwaggerMcpTools(
                 )
             } else {
                 try {
-                    val openApi = client.fetchOpenApiJson(service)
-                    val groups = collectApiGroups(openApi).sorted()
+                    val snapshot = openApiCache.get(service)
                     mapOf(
                         "serviceName" to service.name,
-                        "apiGroups" to groups
+                        "apiGroups" to snapshot.index.apiGroups
                     )
                 } catch (ex: Exception) {
                     mapOf(
@@ -49,28 +48,27 @@ class SwaggerMcpTools(
         @ToolParam(description = "Service name to search") serviceName: String,
         @ToolParam(description = "API group tag to filter", required = false) apiGroup: String?
     ): String = withService(serviceName) { service ->
-        val openApi = client.fetchOpenApiJson(service)
-        val pathsNode = openApi.path("paths")
+        val index = openApiCache.get(service).index
         val result = linkedMapOf<String, Any>()
 
-        pathsNode.fields().forEach { (path, pathItem) ->
-            val methods = linkedMapOf<String, Any>()
-            pathItem.fields().forEach { (method, operation) ->
-                val tags = operation.path("tags").map { it.asText() }
+        index.apiIndex.forEach { (path, methods) ->
+            val filteredMethods = linkedMapOf<String, Any>()
+            methods.forEach { (method, entry) ->
+                val tags = entry.tags
                 if (!apiGroup.isNullOrBlank() && tags.none { it.equals(apiGroup, ignoreCase = true) }) {
                     return@forEach
                 }
-                val entry = linkedMapOf<String, Any?>(
+                val entryMap = linkedMapOf<String, Any?>(
                     "tags" to tags,
-                    "operationId" to textOrNull(operation, "operationId"),
-                    "summary" to textOrNull(operation, "summary")
+                    "operationId" to entry.operationId,
+                    "summary" to entry.summary
                 ).filterValues { it != null }
-                if (entry.isNotEmpty()) {
-                    methods[method.lowercase()] = entry
+                if (entryMap.isNotEmpty()) {
+                    filteredMethods[method] = entryMap
                 }
             }
-            if (methods.isNotEmpty()) {
-                result[path] = methods
+            if (filteredMethods.isNotEmpty()) {
+                result[path] = filteredMethods
             }
         }
 
@@ -83,7 +81,7 @@ class SwaggerMcpTools(
         @ToolParam(description = "Request path, e.g. /posts/{id}") requestUrl: String,
         @ToolParam(description = "HTTP method, e.g. GET") httpMethod: String
     ): String = withService(serviceName) { service ->
-        val openApi = client.fetchOpenApiJson(service)
+        val openApi = openApiCache.get(service).document
         val pathNode = openApi.path("paths").path(requestUrl)
         if (pathNode.isMissingNode) {
             return@withService objectMapper.writeValueAsString(mapOf("error" to "Path not found", "path" to requestUrl))
@@ -157,7 +155,7 @@ class SwaggerMcpTools(
             required = true
         ) refs: String
     ): String = withService(serviceName) { service ->
-        val openApi = client.fetchOpenApiJson(service)
+        val openApi = openApiCache.get(service).document
         val schemasNode = openApi.path("components").path("schemas")
         val refList = refs.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val result = linkedMapOf<String, Any>()
@@ -171,23 +169,6 @@ class SwaggerMcpTools(
         }
 
         objectMapper.writeValueAsString(result)
-    }
-
-    private fun collectApiGroups(openApi: JsonNode): Set<String> {
-        val groups = linkedSetOf<String>()
-        val tagsNode = openApi.path("tags")
-        tagsNode.forEach { tag ->
-            tag.path("name").takeIf { it.isTextual }?.asText()?.let { groups.add(it) }
-        }
-        val pathsNode = openApi.path("paths")
-        pathsNode.fields().forEach { (_, pathItem) ->
-            pathItem.fields().forEach { (_, operation) ->
-                operation.path("tags").forEach { tag ->
-                    tag.takeIf { it.isTextual }?.asText()?.let { groups.add(it) }
-                }
-            }
-        }
-        return groups
     }
 
     private fun textOrNull(node: JsonNode, field: String): String? {

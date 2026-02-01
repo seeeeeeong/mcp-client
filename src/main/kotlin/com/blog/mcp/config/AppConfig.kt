@@ -7,7 +7,8 @@ import org.springframework.web.client.RestTemplate
 
 @Configuration
 @EnableConfigurationProperties(
-    McpServicesProperties::class
+    McpServicesProperties::class,
+    OpenApiCacheProperties::class
 )
 class AppConfig {
 
