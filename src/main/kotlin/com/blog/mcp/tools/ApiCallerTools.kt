@@ -1,7 +1,6 @@
 package com.blog.mcp.tools
 
-import com.blog.mcp.config.BlogApiProperties
-import com.blog.mcp.swagger.SwaggerMcpProperties
+import com.blog.mcp.config.McpServiceRegistry
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
@@ -18,13 +17,12 @@ import org.springframework.web.util.UriComponentsBuilder
 class ApiCallerTools(
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper,
-    private val blogApiProperties: BlogApiProperties,
-    private val swaggerMcpProperties: SwaggerMcpProperties
+    private val registry: McpServiceRegistry
 ) {
 
     private val allowedMethods = setOf("GET", "POST", "PUT", "PATCH", "DELETE")
 
-    @Tool(description = "Call a blog-api endpoint with optional headers, query params, and JSON body")
+    @Tool(description = "Call a service endpoint with optional headers, query params, and JSON body")
     fun callApi(
         @ToolParam(description = "Service name") serviceName: String,
         @ToolParam(description = "HTTP method, e.g. GET") method: String,
@@ -33,9 +31,9 @@ class ApiCallerTools(
         @ToolParam(description = "Query params map", required = false) queryParams: Map<String, String>?,
         @ToolParam(description = "JSON body object or string", required = false) body: Any?
     ): String {
-        val serviceError = validateServiceName(serviceName)
-        if (serviceError != null) {
-            return serviceError
+        val service = resolveService(serviceName) ?: return serviceNotFound(serviceName)
+        if (service.baseUrl.isBlank()) {
+            return errorResponse("Base URL is empty", mapOf("serviceName" to serviceName))
         }
 
         if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -43,7 +41,7 @@ class ApiCallerTools(
         }
 
         val normalizedPath = if (path.startsWith("/")) path else "/$path"
-        val baseUrl = blogApiProperties.baseUrl.trimEnd('/')
+        val baseUrl = service.baseUrl.trimEnd('/')
         val methodValue = method.uppercase()
         if (!allowedMethods.contains(methodValue)) {
             return errorResponse("Method not allowed", mapOf("method" to methodValue))
@@ -97,15 +95,18 @@ class ApiCallerTools(
         }
     }
 
-    private fun validateServiceName(serviceName: String): String? {
-        if (serviceName != swaggerMcpProperties.serviceName) {
-            return errorResponse(
-                "Unknown service name",
-                mapOf("serviceName" to serviceName, "expected" to swaggerMcpProperties.serviceName)
-            )
-        }
-        return null
-    }
+    private fun resolveService(serviceName: String) = registry.get(serviceName)
+
+    private fun serviceNotFound(serviceName: String): String =
+        errorResponse(
+            "Unknown service name",
+            mapOf("serviceName" to serviceName, "available" to availableServices())
+        )
+
+    private fun availableServices(): List<String> = registry.list()
+        .map { it.name }
+        .filter { it.isNotBlank() }
+        .sorted()
 
     private fun errorResponse(message: String, data: Map<String, Any?> = emptyMap()): String {
         val payload = linkedMapOf<String, Any?>("error" to message)

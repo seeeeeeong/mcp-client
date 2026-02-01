@@ -1,9 +1,9 @@
 # mcp-client
 
-Local MCP server for testing `blog-api` with an Inspector/CLI client. This server exposes Swagger discovery tools and a tool that can call blog-api endpoints.
+Local MCP server that aggregates Swagger/OpenAPI from multiple services and exposes MCP tools for discovery and API calls.
 
 ## Prereqs
-- blog-api running at `http://localhost:8080`
+- Each target service running locally (e.g. blog-api at http://localhost:8080)
 - Java 17
 
 ## Run
@@ -26,9 +26,9 @@ If your client cannot connect, check the startup logs for the exact MCP endpoint
 
 ### API call
 - `callApi`
-  - `serviceName`: `blog-api`
+  - `serviceName`: service key in `mcp.services`
   - `method`: `GET|POST|PUT|PATCH|DELETE`
-  - `path`: `/posts/1`
+  - `path`: `/api/v1/posts/1`
   - `headers`: map (optional)
   - `queryParams`: map (optional)
   - `body`: JSON object or string (optional)
@@ -39,14 +39,11 @@ If your client cannot connect, check the startup logs for the exact MCP endpoint
 server:
   port: 8090
 
-blog:
-  api:
-    base-url: http://localhost:8080
-
-swagger:
-  mcp:
-    service-name: blog-api
-    api-docs-path: /v3/api-docs
+mcp:
+  services:
+    - name: blog-api
+      base-url: http://localhost:8080
+      api-docs-path: /v3/api-docs
 ```
 
 ## Example calls
@@ -54,7 +51,7 @@ Example `listApis` call:
 ```json
 {
   "serviceName": "blog-api",
-  "apiGroup": "Posts"
+  "apiGroup": "Post"
 }
 ```
 
@@ -63,6 +60,6 @@ Example `callApi` call:
 {
   "serviceName": "blog-api",
   "method": "GET",
-  "path": "/posts/1"
+  "path": "/api/v1/posts/1"
 }
 ```

@@ -1,5 +1,7 @@
 package com.blog.mcp.swagger
 
+import com.blog.mcp.config.McpServiceProperties
+import com.blog.mcp.config.McpServiceRegistry
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.ai.tool.annotation.Tool
@@ -10,19 +12,35 @@ import org.springframework.stereotype.Component
 class SwaggerMcpTools(
     private val client: SwaggerMcpClient,
     private val objectMapper: ObjectMapper,
-    private val properties: SwaggerMcpProperties
+    private val registry: McpServiceRegistry
 ) {
 
     @Tool(description = "List services and API groups available in this Swagger MCP server")
     fun listServices(): String {
-        val openApi = client.fetchOpenApiJson()
-        val groups = collectApiGroups(openApi).sorted()
-        val result = listOf(
-            mapOf(
-                "serviceName" to properties.serviceName,
-                "apiGroups" to groups
-            )
-        )
+        val services = registry.list().filter { it.name.isNotBlank() }
+        val result = services.map { service ->
+            if (service.baseUrl.isBlank()) {
+                mapOf(
+                    "serviceName" to service.name,
+                    "error" to "MISSING_BASE_URL"
+                )
+            } else {
+                try {
+                    val openApi = client.fetchOpenApiJson(service)
+                    val groups = collectApiGroups(openApi).sorted()
+                    mapOf(
+                        "serviceName" to service.name,
+                        "apiGroups" to groups
+                    )
+                } catch (ex: Exception) {
+                    mapOf(
+                        "serviceName" to service.name,
+                        "error" to "OPENAPI_FETCH_FAILED",
+                        "message" to (ex.message ?: "unknown")
+                    )
+                }
+            }
+        }
         return objectMapper.writeValueAsString(result)
     }
 
@@ -31,12 +49,12 @@ class SwaggerMcpTools(
         @ToolParam(description = "Service name to search") serviceName: String,
         @ToolParam(description = "API group tag to filter", required = false) apiGroup: String?
     ): String {
-        val error = validateServiceName(serviceName)
-        if (error != null) {
-            return error
+        val service = resolveService(serviceName) ?: return serviceNotFound(serviceName)
+        if (service.baseUrl.isBlank()) {
+            return errorResponse("Base URL is empty", mapOf("serviceName" to serviceName))
         }
 
-        val openApi = client.fetchOpenApiJson()
+        val openApi = client.fetchOpenApiJson(service)
         val pathsNode = openApi.path("paths")
         val result = linkedMapOf<String, Any>()
 
@@ -70,12 +88,12 @@ class SwaggerMcpTools(
         @ToolParam(description = "Request path, e.g. /posts/{id}") requestUrl: String,
         @ToolParam(description = "HTTP method, e.g. GET") httpMethod: String
     ): String {
-        val error = validateServiceName(serviceName)
-        if (error != null) {
-            return error
+        val service = resolveService(serviceName) ?: return serviceNotFound(serviceName)
+        if (service.baseUrl.isBlank()) {
+            return errorResponse("Base URL is empty", mapOf("serviceName" to serviceName))
         }
 
-        val openApi = client.fetchOpenApiJson()
+        val openApi = client.fetchOpenApiJson(service)
         val pathNode = openApi.path("paths").path(requestUrl)
         if (pathNode.isMissingNode) {
             return objectMapper.writeValueAsString(mapOf("error" to "Path not found", "path" to requestUrl))
@@ -149,12 +167,12 @@ class SwaggerMcpTools(
             required = true
         ) refs: String
     ): String {
-        val error = validateServiceName(serviceName)
-        if (error != null) {
-            return error
+        val service = resolveService(serviceName) ?: return serviceNotFound(serviceName)
+        if (service.baseUrl.isBlank()) {
+            return errorResponse("Base URL is empty", mapOf("serviceName" to serviceName))
         }
 
-        val openApi = client.fetchOpenApiJson()
+        val openApi = client.fetchOpenApiJson(service)
         val schemasNode = openApi.path("components").path("schemas")
         val refList = refs.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val result = linkedMapOf<String, Any>()
@@ -170,17 +188,23 @@ class SwaggerMcpTools(
         return objectMapper.writeValueAsString(result)
     }
 
-    private fun validateServiceName(serviceName: String): String? {
-        if (serviceName != properties.serviceName) {
-            return objectMapper.writeValueAsString(
-                mapOf(
-                    "error" to "Unknown service name",
-                    "serviceName" to serviceName,
-                    "expected" to properties.serviceName
-                )
-            )
-        }
-        return null
+    private fun resolveService(serviceName: String): McpServiceProperties? = registry.get(serviceName)
+
+    private fun serviceNotFound(serviceName: String): String =
+        errorResponse(
+            "Unknown service name",
+            mapOf("serviceName" to serviceName, "available" to availableServices())
+        )
+
+    private fun availableServices(): List<String> = registry.list()
+        .map { it.name }
+        .filter { it.isNotBlank() }
+        .sorted()
+
+    private fun errorResponse(message: String, data: Map<String, Any?> = emptyMap()): String {
+        val payload = linkedMapOf<String, Any?>("error" to message)
+        payload.putAll(data)
+        return objectMapper.writeValueAsString(payload)
     }
 
     private fun collectApiGroups(openApi: JsonNode): Set<String> {

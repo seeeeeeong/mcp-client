@@ -1,0 +1,53 @@
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :processResources
+
+> Task :compileKotlin
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:61:19 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:63:22 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:139:23 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:217:19 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:218:22 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:248:33 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:268:19 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/swagger/SwaggerMcpTools.kt:287:63 'fun fields(): (Mutable)Iterator<(Mutable)Map.(Mutable)Entry<String!, JsonNode!>!>!' is deprecated. Deprecated in Java.
+w: file:///Users/sinseonglee/Desktop/mcp-client/src/main/kotlin/com/blog/mcp/tools/ApiCallerTools.kt:56:47 'static fun fromHttpUrl(httpUrl: String): UriComponentsBuilder' is deprecated. Deprecated in Java.
+
+> Task :compileJava NO-SOURCE
+> Task :classes
+> Task :resolveMainClassName
+
+> Task :bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.9)
+
+2026-02-01T20:32:56.522+09:00  INFO 92906 --- [mcp-client] [           main] c.blog.mcp.BlogMcpClientApplicationKt    : Starting BlogMcpClientApplicationKt using Java 17.0.17 with PID 92906 (/Users/sinseonglee/Desktop/mcp-client/build/classes/kotlin/main started by sinseonglee in /Users/sinseonglee/Desktop/mcp-client)
+2026-02-01T20:32:56.523+09:00  INFO 92906 --- [mcp-client] [           main] c.blog.mcp.BlogMcpClientApplicationKt    : No active profile set, falling back to 1 default profile: "default"
+2026-02-01T20:32:56.873+09:00  WARN 92906 --- [mcp-client] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.ai.mcp.server.common.autoconfigure.annotations.McpServerAnnotationScannerAutoConfiguration' of type [org.springframework.ai.mcp.server.common.autoconfigure.annotations.McpServerAnnotationScannerAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [serverAnnotatedMethodBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-02-01T20:32:56.873+09:00  WARN 92906 --- [mcp-client] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'serverAnnotatedBeanRegistry' of type [org.springframework.ai.mcp.server.common.autoconfigure.annotations.McpServerAnnotationScannerAutoConfiguration$ServerMcpAnnotatedBeans] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [serverAnnotatedMethodBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-02-01T20:32:56.878+09:00  WARN 92906 --- [mcp-client] [           main] trationDelegate$BeanPostProcessorChecker : Bean 'spring.ai.mcp.server.annotation-scanner-org.springframework.ai.mcp.server.common.autoconfigure.annotations.McpServerAnnotationScannerProperties' of type [org.springframework.ai.mcp.server.common.autoconfigure.annotations.McpServerAnnotationScannerProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [serverAnnotatedMethodBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-02-01T20:32:56.971+09:00  INFO 92906 --- [mcp-client] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8090 (http)
+2026-02-01T20:32:56.978+09:00  INFO 92906 --- [mcp-client] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-01T20:32:56.978+09:00  INFO 92906 --- [mcp-client] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.50]
+2026-02-01T20:32:57.000+09:00  INFO 92906 --- [mcp-client] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-01T20:32:57.000+09:00  INFO 92906 --- [mcp-client] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 455 ms
+2026-02-01T20:32:57.322+09:00  WARN 92906 --- [mcp-client] [           main] .m.p.r.AsyncStatelessMcpResourceProvider : No resource methods found in the provided resource objects: []
+2026-02-01T20:32:57.322+09:00  WARN 92906 --- [mcp-client] [           main] .m.p.r.AsyncStatelessMcpResourceProvider : No resource methods found in the provided resource objects: []
+2026-02-01T20:32:57.323+09:00  WARN 92906 --- [mcp-client] [           main] .s.m.p.p.AsyncStatelessMcpPromptProvider : No prompt methods found in the provided prompt objects: []
+2026-02-01T20:32:57.323+09:00  WARN 92906 --- [mcp-client] [           main] .m.p.c.AsyncStatelessMcpCompleteProvider : No complete methods found in the provided complete objects: []
+2026-02-01T20:32:57.325+09:00  WARN 92906 --- [mcp-client] [           main] o.s.m.p.t.AsyncStatelessMcpToolProvider  : No tool methods found in the provided tool objects: []
+2026-02-01T20:32:57.327+09:00  INFO 92906 --- [mcp-client] [           main] .c.a.McpServerStatelessAutoConfiguration : Registered tools: 5
+2026-02-01T20:32:57.327+09:00  INFO 92906 --- [mcp-client] [           main] .c.a.McpServerStatelessAutoConfiguration : Enable completions capabilities
+2026-02-01T20:32:57.381+09:00  INFO 92906 --- [mcp-client] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8090 (http) with context path '/'
+2026-02-01T20:32:57.386+09:00  INFO 92906 --- [mcp-client] [           main] c.blog.mcp.BlogMcpClientApplicationKt    : Started BlogMcpClientApplicationKt in 1.066 seconds (process running for 1.21)
+2026-02-01T20:33:13.085+09:00  INFO 92906 --- [mcp-client] [nio-8090-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-01T20:33:13.085+09:00  INFO 92906 --- [mcp-client] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-01T20:33:13.086+09:00  INFO 92906 --- [mcp-client] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-02-01T20:39:48.821+09:00  INFO 92906 --- [mcp-client] [nio-8090-exec-9] i.m.server.McpStatelessAsyncServer       : Client initialize request - Protocol: 2025-06-18, Capabilities: ClientCapabilities[experimental=null, roots=null, sampling=null, elicitation=Elicitation[]], Info: Implementation[name=codex-mcp-client, title=Codex, version=0.93.0]
+2026-02-01T20:39:48.919+09:00  WARN 92906 --- [mcp-client] [io-8090-exec-10] i.m.s.DefaultMcpStatelessServerHandler   : Missing handler for notification type: notifications/initialized
