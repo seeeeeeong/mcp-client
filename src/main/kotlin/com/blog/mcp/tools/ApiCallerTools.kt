@@ -1,6 +1,7 @@
 package com.blog.mcp.tools
 
 import com.blog.mcp.config.McpServiceRegistry
+import com.blog.mcp.support.McpToolSupport
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam
@@ -16,9 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder
 @Component
 class ApiCallerTools(
     private val restTemplate: RestTemplate,
-    private val objectMapper: ObjectMapper,
-    private val registry: McpServiceRegistry
-) {
+    objectMapper: ObjectMapper,
+    registry: McpServiceRegistry
+) : McpToolSupport(objectMapper, registry) {
 
     private val allowedMethods = setOf("GET", "POST", "PUT", "PATCH", "DELETE")
 
@@ -30,27 +31,22 @@ class ApiCallerTools(
         @ToolParam(description = "Headers map", required = false) headers: Map<String, String>?,
         @ToolParam(description = "Query params map", required = false) queryParams: Map<String, String>?,
         @ToolParam(description = "JSON body object or string", required = false) body: Any?
-    ): String {
-        val service = resolveService(serviceName) ?: return serviceNotFound(serviceName)
-        if (service.baseUrl.isBlank()) {
-            return errorResponse("Base URL is empty", mapOf("serviceName" to serviceName))
-        }
-
+    ): String = withService(serviceName) { service ->
         if (path.startsWith("http://") || path.startsWith("https://")) {
-            return errorResponse("Absolute URLs are not allowed", mapOf("path" to path))
+            return@withService errorResponse("Absolute URLs are not allowed", mapOf("path" to path))
         }
 
         val normalizedPath = if (path.startsWith("/")) path else "/$path"
         val baseUrl = service.baseUrl.trimEnd('/')
         val methodValue = method.uppercase()
         if (!allowedMethods.contains(methodValue)) {
-            return errorResponse("Method not allowed", mapOf("method" to methodValue))
+            return@withService errorResponse("Method not allowed", mapOf("method" to methodValue))
         }
 
         val httpMethod = try {
             HttpMethod.valueOf(methodValue)
         } catch (ex: IllegalArgumentException) {
-            return errorResponse("Invalid method", mapOf("method" to methodValue))
+            return@withService errorResponse("Invalid method", mapOf("method" to methodValue))
         }
 
         val uriBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + normalizedPath)
@@ -67,7 +63,7 @@ class ApiCallerTools(
         }
 
         val requestEntity = HttpEntity(body, httpHeaders)
-        return try {
+        try {
             val response = restTemplate.exchange(
                 uriBuilder.build(true).toUri(),
                 httpMethod,
@@ -93,24 +89,5 @@ class ApiCallerTools(
         } catch (ex: Exception) {
             errorResponse("REQUEST_FAILED", mapOf("message" to ex.message))
         }
-    }
-
-    private fun resolveService(serviceName: String) = registry.get(serviceName)
-
-    private fun serviceNotFound(serviceName: String): String =
-        errorResponse(
-            "Unknown service name",
-            mapOf("serviceName" to serviceName, "available" to availableServices())
-        )
-
-    private fun availableServices(): List<String> = registry.list()
-        .map { it.name }
-        .filter { it.isNotBlank() }
-        .sorted()
-
-    private fun errorResponse(message: String, data: Map<String, Any?> = emptyMap()): String {
-        val payload = linkedMapOf<String, Any?>("error" to message)
-        payload.putAll(data)
-        return objectMapper.writeValueAsString(payload)
     }
 }
