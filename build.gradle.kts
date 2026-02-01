@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.blog"
+group = "com.mcp"
 version = "0.0.1-SNAPSHOT"
 
 repositories {

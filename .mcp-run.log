@@ -39,3 +39,24 @@
 2026-02-01T23:40:27.377+09:00  INFO 5313 --- [mcp-client] [nio-8090-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2026-02-01T23:40:27.378+09:00  INFO 5313 --- [mcp-client] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2026-02-01T23:40:27.378+09:00  INFO 5313 --- [mcp-client] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-02-02T00:22:34.044+09:00  INFO 5313 --- [mcp-client] [io-8090-exec-10] i.m.server.McpStatelessAsyncServer       : Client initialize request - Protocol: 2025-06-18, Capabilities: ClientCapabilities[experimental=null, roots=null, sampling=null, elicitation=Elicitation[]], Info: Implementation[name=codex-mcp-client, title=Codex, version=0.93.0]
+2026-02-02T00:22:34.069+09:00  WARN 5313 --- [mcp-client] [nio-8090-exec-1] i.m.s.DefaultMcpStatelessServerHandler   : Missing handler for notification type: notifications/initialized
+2026-02-02T00:40:07.122+09:00  INFO 5313 --- [mcp-client] [ionShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-02T00:40:07.127+09:00  INFO 5313 --- [mcp-client] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+
+> Task :bootRun FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':bootRun'.
+> Process 'command '/Users/sinseonglee/Library/Java/JavaVirtualMachines/ms-17.0.17/Contents/Home/bin/java'' finished with non-zero exit value 143
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 59m 44s
+4 actionable tasks: 1 executed, 3 up-to-date
